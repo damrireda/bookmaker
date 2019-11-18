@@ -12,15 +12,40 @@ use App\Controller\AppController;
  */
 class BookmarksController extends AppController
 {
+
+
+    public function isAuthorized($user)
+    {
+        $action = $this->request->params['action'];
+
+        // Add et index sont toujours permises.
+        if (in_array($action, ['index', 'add', 'tags'])) {
+            return true;
+        }
+        // Tout autre action nécessite un id.
+        if (!$this->request->getParam('pass.0')) {
+            return false;
+        }
+
+        // Vérifie que le bookmark appartient à l'utilisateur courant.
+        $id = $this->request->getParam('pass.0');
+        $bookmark = $this->Bookmarks->get($id);
+        if ($bookmark->user_id == $user['id']) {
+            return true;
+        }
+        return parent::isAuthorized($user);
+    }
+    
     /**
      * Index method
      *
      * @return \Cake\Http\Response|null
      */
     public function index()
-    {
+    { 
         $this->paginate = [
-            'contain' => ['Users']
+            'contain' => ['Users'],
+            'conditions' => ['Bookmarks.user_id'=>$this->Auth->user('id')]
         ];
         $bookmarks = $this->paginate($this->Bookmarks);
 
@@ -53,6 +78,7 @@ class BookmarksController extends AppController
         $bookmark = $this->Bookmarks->newEntity();
         if ($this->request->is('post')) {
             $bookmark = $this->Bookmarks->patchEntity($bookmark, $this->request->getData());
+            $bookamrk->user_id=$this->Auth->user('id');
             if ($this->Bookmarks->save($bookmark)) {
                 $this->Flash->success(__('The bookmark has been saved.'));
 
@@ -79,6 +105,7 @@ class BookmarksController extends AppController
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $bookmark = $this->Bookmarks->patchEntity($bookmark, $this->request->getData());
+            $bookamrk->user_id=$this->Auth->user('id');
             if ($this->Bookmarks->save($bookmark)) {
                 $this->Flash->success(__('The bookmark has been saved.'));
 
