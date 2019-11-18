@@ -102,3 +102,12 @@ Router::scope('/', function (RouteBuilder $routes) {
  * });
  * ```
  */
+
+
+Router::scope(
+    '/bookmarks',
+    ['controller'=>'Bookmarks'],
+    function ($routes){
+        $routes->connect('/tagged/*',['action'=>'tags']);
+    }
+);

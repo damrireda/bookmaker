@@ -110,4 +110,24 @@ class BookmarksController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
+
+
+    /**
+    *
+    *
+    */
+    public function tags(){
+        $tags=$this->request->getParam('pass');
+        
+        $bookmarks=$this->Bookmarks->find('tagged',['tags'=>$tags]);
+        $bookmarks = $this->paginate($this->Bookmarks);
+
+
+        $this->set([
+            'bookmarks'=>$bookmarks,
+            'tags'=>$tags]);
+
+        
+    }
 }
